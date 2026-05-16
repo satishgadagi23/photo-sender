@@ -381,18 +381,20 @@
     btn.innerHTML = '<span class="spinner"></span> Sending...';
 
     try {
-      // Send image filenames (base64 too large for EmailJS free tier)
-      const imageNames = selectedFiles.map((f, i) =>
-        `<li style="margin:6px 0;">${i+1}. ${f.name} (${(f.size/1024).toFixed(1)} KB)</li>`
+      // Convert images to base64 and send one email with all images listed
+      const imageDataArray = await Promise.all(selectedFiles.map(fileToBase64));
+
+      // Build image HTML for template
+      const imagesHTML = imageDataArray.map((data, i) =>
+        `<img src="${data}" style="max-width:300px;margin:8px;border-radius:8px;" alt="Image ${i+1}" />`
       ).join('');
-      const imagesHTML = `<ul style="font-size:15px;line-height:1.8;padding-left:20px;">${imageNames}</ul>`;
 
       const templateParams = {
         to_email:    TO_EMAIL,
         from_name:   name,
         image_count: selectedFiles.length,
         images_html: imagesHTML,
-        message:     name + ' sent you ' + selectedFiles.length + ' image(s).'
+        message:     `${name} sent you ${selectedFiles.length} image(s).`
       };
 
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
