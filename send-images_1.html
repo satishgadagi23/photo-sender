@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send Images to Satish</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #2a2a3a;
+    --accent: #ff6b35;
+    --accent2: #ff9a5c;
+    --text: #f0f0f5;
+    --muted: #6b6b80;
+    --success: #22c55e;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(255,107,53,0.08) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 80%, rgba(255,154,92,0.05) 0%, transparent 60%);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  .logo {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  .drop-zone {
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(255,107,53,0.04);
+  }
+
+  .drop-zone input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .drop-icon { font-size: 36px; margin-bottom: 10px; }
+
+  .drop-text {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .drop-text strong {
+    color: var(--accent);
+    display: block;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .preview-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .preview-item .remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .file-count {
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 10px;
+    font-weight: 500;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn:hover { opacity: 0.9; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .status {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status.success {
+    display: flex;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--success);
+  }
+
+  .status.error {
+    display: flex;
+    background: rgba(255,107,53,0.1);
+    border: 1px solid rgba(255,107,53,0.3);
+    color: var(--accent);
+  }
+
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+
+  .note a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">📸</div>
+  <h1>Send Photos to <span>Satish</span></h1>
+  <p class="subtitle">Pick your images below — they'll go straight to Satish's inbox instantly.</p>
+
+  <div class="field">
+    <label>Your Name</label>
+    <input type="text" id="senderName" placeholder="Enter your name" />
+  </div>
+
+  <div class="field">
+    <label>Select Images</label>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" multiple />
+      <div class="drop-icon">🖼️</div>
+      <div class="drop-text">
+        <strong>Tap to choose images</strong>
+        JPG, PNG, WEBP supported
+      </div>
+    </div>
+    <div class="preview-grid" id="previewGrid"></div>
+    <div class="file-count" id="fileCount"></div>
+  </div>
+
+  <button class="btn" id="sendBtn" onclick="sendImages()">Send Images →</button>
+
+  <div class="status" id="statusBox"></div>
+  <p class="note">Images are sent directly to Satish via email.<br>Powered by <a href="https://emailjs.com" target="_blank">EmailJS</a></p>
+</div>
+
+<script>
+  // ── EmailJS config ──────────────────────────────────────────────
+  // STEP 1: Go to https://emailjs.com and create a FREE account
+  // STEP 2: Add Gmail service → copy your Service ID below
+  // STEP 3: Create an email template → copy Template ID below
+  // STEP 4: Copy your Public Key below
+  const EMAILJS_PUBLIC_KEY  = "E8xU2pugqGfovcVEs";
+  const EMAILJS_SERVICE_ID  = "service_wopevee";
+  const EMAILJS_TEMPLATE_ID = "template_8vp3lvc";
+  const TO_EMAIL = "satishgadagi23@gmail.com";
+  // ────────────────────────────────────────────────────────────────
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  let selectedFiles = [];
+
+  const fileInput   = document.getElementById('fileInput');
+  const previewGrid = document.getElementById('previewGrid');
+  const fileCount   = document.getElementById('fileCount');
+  const dropZone    = document.getElementById('dropZone');
+
+  fileInput.addEventListener('change', handleFiles);
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFiles({ target: { files: e.dataTransfer.files } });
+  });
+
+  function handleFiles(e) {
+    const newFiles = Array.from(e.target.files);
+    selectedFiles = [...selectedFiles, ...newFiles].slice(0, 5); // max 5
+    renderPreviews();
+  }
+
+  function renderPreviews() {
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((file, i) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        item.innerHTML = `<img src="${ev.target.result}" /><button class="remove" onclick="removeFile(${i})">×</button>`;
+        previewGrid.appendChild(item);
+      };
+      reader.readAsDataURL(file);
+    });
+    fileCount.textContent = selectedFiles.length > 0 ? `${selectedFiles.length} image(s) selected (max 5)` : '';
+  }
+
+  function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    renderPreviews();
+  }
+
+  async function fileToBase64(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function sendImages() {
+    const name = document.getElementById('senderName').value.trim();
+    const btn = document.getElementById('sendBtn');
+    const statusBox = document.getElementById('statusBox');
+
+    statusBox.className = 'status';
+    statusBox.style.display = 'none';
+
+    if (!name) { showStatus('error', '⚠️ Please enter your name.'); return; }
+    if (selectedFiles.length === 0) { showStatus('error', '⚠️ Please select at least one image.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Sending...';
+
+    try {
+      // Send image filenames (base64 too large for EmailJS free tier)
+      const imageNames = selectedFiles.map((f, i) =>
+        `<li style="margin:6px 0;">${i+1}. ${f.name} (${(f.size/1024).toFixed(1)} KB)</li>`
+      ).join('');
+      const imagesHTML = `<ul style="font-size:15px;line-height:1.8;padding-left:20px;">${imageNames}</ul>`;
+
+      const templateParams = {
+        to_email:    TO_EMAIL,
+        from_name:   name,
+        image_count: selectedFiles.length,
+        images_html: imagesHTML,
+        message:     name + ' sent you ' + selectedFiles.length + ' image(s).'
+      };
+
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+
+      showStatus('success', `✅ ${selectedFiles.length} image(s) sent to Satish successfully!`);
+      selectedFiles = [];
+      renderPreviews();
+      document.getElementById('senderName').value = '';
+    } catch (err) {
+      console.error(err);
+      showStatus('error', '❌ Failed to send. Check EmailJS keys or try again.');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Send Images →';
+  }
+
+  function showStatus(type, msg) {
+    const box = document.getElementById('statusBox');
+    box.className = `status ${type}`;
+    box.textContent = msg;
+  }
+</script>
+</body>
+</html>
